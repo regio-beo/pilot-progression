@@ -179,7 +179,7 @@ class CsvPilot:
         #df['delta_distance'] = df['distance'].diff(periods=periods).apply(lambda x: -x)
 
         # use shifts:
-        shift = 200//2 # period = 2*shift # 1=50m
+        shift = 20//2 # period = 2*shift # 1=50m
         df['delta_seconds'] = df['seconds'].shift(-shift) - df['seconds'].shift(shift)
         df['delta_gps_alt'] = df['gps_alt'].shift(-shift) - df['gps_alt'].shift(shift)
         df['delta_distance'] = (df['distance'].shift(-shift) - df['distance'].shift(shift)).apply(lambda x: -x)
@@ -372,11 +372,19 @@ class CsvCompetition:
 if __name__ == '__main__':
 
     # Swiss League Cup March
-    airstart = datetime.time(12, 30) # UTC
-    d_start = 76000
-    d_end = 1000
-    goal_altitude = 590
-    competition = CsvCompetition('data/dump/task_2025-03-08', 'data/dump/slc_march')
+    #airstart = datetime.time(12, 45) # UTC
+    #d_start = 58000
+    #d_end = 0
+    #goal_altitude = 500
+    #competition = CsvCompetition('data/dump/task_2025-03-22', 'data/dump/regio_march_jura')
+
+    # Swiss Regio Grindelwald
+    airstart = datetime.time(11, 00) # UTC
+    d_start = 65000
+    d_end = 0
+    goal_altitude = 500
+    competition = CsvCompetition('data/dump/task_selection', 'data/dump/swiss_regio_grindelwald')
+    
 
     # Regio Beo
     #airstart = datetime.time(11, 35) # UTC
@@ -386,9 +394,9 @@ if __name__ == '__main__':
     competition.read_pilots(airstart, goal_altitude, d_start, d_end)
     #competition.create_plots_top5()
     #3competition.create_plots_top20()
-    competition.create_plots_booster()
+    #competition.create_plots_booster()
     #competition.create_plots_sportsclass()
-    #competition.create_plots_all_pilots()
+    competition.create_plots_all_pilots()
     
 
 

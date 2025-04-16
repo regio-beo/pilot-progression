@@ -81,6 +81,19 @@ def crop_distance(df, start, end):
     df = df[df['distance'] > end]
     return df
 
+def suppress_local_minimas(df, column):
+    distances = df[column].values
+    keep_indices = []
+
+    current_min = float('inf')
+
+    for i, val in enumerate(distances):
+        if val < current_min:
+            keep_indices.append(df.index[i])
+            current_min = val        
+
+    return df.loc[keep_indices].reset_index(drop=True)
+
 
 
 # The CSV Pilot processes the csv file
@@ -106,12 +119,16 @@ class Team:
     
 class BoosterTeam(Team):
     def __init__(self):
-        super().__init__('pilot_progression/booster.txt')
+        super().__init__('teams/booster.txt')
 
 
 class SportsClass(Team):
     def __init__(self):
-        super().__init__('pilot_progression/sports-class.txt')
+        super().__init__('teams/sports-class.txt')
+
+class CCCs(Team):
+    def __init__(self):
+        super().__init__('teams/cccs.txt')
 
 class CsvPilot:
 
@@ -121,8 +138,9 @@ class CsvPilot:
         self.filename = filename
         self.name = filename.split('.')[0]
         self.ranking = 86400 # use for ranking
+
             
-    def process(self, airstart, goal_altitude, start, end):
+    def process(self, airstart, goal_altitude, start, end, non_min_suppression):
         df = pd.read_csv(os.path.join(self.directory, self.filename))
         # convert time
         df['time'] = df['time'].apply(lambda x: datetime.datetime.strptime(x, '%H:%M:%S').time())
@@ -130,6 +148,10 @@ class CsvPilot:
         
         # filter by airstart
         df = df[df['airstart'] == True]
+
+        # suppress if the distance gets higher again:
+        if non_min_suppression:
+            df = suppress_local_minimas(df, 'distance')
 
         # check if df contains end:
         if len(df) == 0: # process anyways
@@ -148,7 +170,7 @@ class CsvPilot:
         df['y'] = ys
 
         # Resample in 50m of distance    
-        df['distance_bin'] = (df['distance'] // 50) * 50 # Round every 10m
+        df['distance_bin'] = (df['distance'] // 50) * 50 # Round every 50m
         df = df.groupby('distance_bin').first().reset_index()
 
         # set index distance
@@ -281,8 +303,9 @@ class CsvCompetition:
         self.view = None
         self.booster = BoosterTeam()
         self.sportsclass = SportsClass()
+        self.cccs = CCCs()
 
-    def read_pilots(self, airstart, goal_altitude, start, end):
+    def read_pilots(self, airstart, goal_altitude, start, end, non_min_suppression):
         # read and process all CSV files:
         for filename in os.listdir(self.directory):
             if filename.lower().endswith('.csv'):
@@ -290,7 +313,7 @@ class CsvCompetition:
                 #if not self.booster.contains(pilot.name):
                 #    continue # speedup
                 try:
-                    pilot.process(airstart, goal_altitude, start, end)
+                    pilot.process(airstart, goal_altitude, start, end, non_min_suppression)
                     self.pilots.append(pilot)
                 except ValueError:
                     print(f'Pilot {pilot.name} did not reach end. Skip!')
@@ -305,6 +328,7 @@ class CsvCompetition:
 
         self.booster_pilots = list(filter(lambda p: self.booster.contains(p.name), self.pilots))
         self.sport_pilots = list(filter(lambda p: self.sportsclass.contains(p.name), self.pilots))
+        self.ccc_pilots = list(filter(lambda p: self.cccs.contains(p.name), self.pilots))
     
     def create_plots_all_pilots(self):
         self.create_plots('all', self.pilots)
@@ -320,6 +344,9 @@ class CsvCompetition:
     
     def create_plots_sportsclass(self):
         self.create_plots('sportsclass', self.sport_pilots)
+    
+    def create_plots_ccc(self):
+        self.create_plots('ccc', self.ccc_pilots)
 
     def create_plots(self, postfix, pilots):
 
@@ -383,7 +410,7 @@ if __name__ == '__main__':
     d_start = 65000
     d_end = 0
     goal_altitude = 500
-    competition = CsvCompetition('data/dump/task_selection', 'data/dump/swiss_regio_grindelwald')
+    competition = CsvCompetition('data/dump/task_tila', 'data/dump/swiss_regio_grindelwald')
     
 
     # Regio Beo
@@ -391,11 +418,12 @@ if __name__ == '__main__':
     #competition = CsvCompetition('data/dump/task_2025-03-01', 'data/dump/regio_march')
     
     # Run
-    competition.read_pilots(airstart, goal_altitude, d_start, d_end)
-    #competition.create_plots_top5()
-    #3competition.create_plots_top20()
+    competition.read_pilots(airstart, goal_altitude, d_start, d_end, non_min_suppression=True)
+    competition.create_plots_top5()
+    #competition.create_plots_top20()
     #competition.create_plots_booster()
     #competition.create_plots_sportsclass()
+    competition.create_plots_ccc()
     competition.create_plots_all_pilots()
     
 

@@ -193,10 +193,10 @@ def process_pilot(pilot_item):
     VERBOSE and print(f'Processed {pilot}')
 
     # Visualize:
-    plt.figure(figsize=(10, 6))
-    plt.plot(np.arange(len(df)), df['lon'])
+    #plt.figure(figsize=(10, 6))
+    #plt.plot(np.arange(len(df)), df['lon'])
     #plt.plot(np.arange(len(df)), df['lat'])
-    plt.show()
+    #plt.show()
 
 
 
@@ -210,8 +210,8 @@ def process_pilot(pilot_item):
 #ROOT_DIRECTORY = 'data/igc/swissleague/march/igc6494_2025-03-08'
 
 # TODO: create command line wrapper
-#ROOT_DIRECTORY = 'data/igc/swissleague/swiss_regio_grindelwald'
-ROOT_DIRECTORY = 'data/igc/swissleague/swiss_regio_selection'
+ROOT_DIRECTORY = 'data/igc/swissleague/swiss_regio_grindelwald'
+#ROOT_DIRECTORY = 'data/igc/swissleague/swiss_regio_selection'
 
 
 # scan directory
@@ -263,11 +263,11 @@ original_path, distances, config = optimizer.run_slow()
 #pilot = 'roger'
 
 # DEBUG:
-for item in pilots.items():
-    if 'benjamin' in item[0]:
-        process_pilot(item)
+#for item in pilots.items():
+#    if 'benjamin' in item[0]:
+#        process_pilot(item)
 
-#with concurrent.futures.ProcessPoolExecutor(max_workers=4) as executor:
-#    list(tqdm(executor.map(process_pilot, pilots.items()), total=len(pilots)))
+with concurrent.futures.ProcessPoolExecutor(max_workers=20) as executor:
+    list(tqdm(executor.map(process_pilot, pilots.items()), total=len(pilots)))
 
 

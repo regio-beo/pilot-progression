@@ -1,0 +1,30 @@
+
+# Swiss Regio Grindelwald
+fankhauser-benjamin
+thiebaud-fabrice
+zingg-alfredo
+aeschbacher-roger
+kiener-noah
+muehlemann-rene
+maurer-christian
+descombes-henri
+frochaux-gael
+morisetti-jean
+seitz-gernot
+
+# SLO (addition):
+licini-davide
+montavon-morane
+binggeli-romain
+dietrich-olivier
+studer-alfredo
+cox-steve
+morgenthaler-stephan
+breitinger-dominik
+montuori-francois
+bourdelle-remi
+descoeudres-gabriel
+narsai-anesh
+gubeli-michael
+morrissey-peter
+mumenthaler-colin

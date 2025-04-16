@@ -16,14 +16,17 @@ def euclidean_dist(ax, ay, bx, by):
 
 class Point:
 
-    def __init__(self, x, y, time=None):        
+    def __init__(self, x, y, time=None, altitude=None):        
         self.x = x
         self.y = y   
         self.time = time
+        self.altitude = altitude
 
-    def plot(self, label):
+    def plot(self, label=None, lower=False):
         plt.plot(self.x, self.y, 'kx')  # black x
-        plt.text(self.x + 1, self.y + 1, label, fontsize=12, color='black')
+        if label is not None:
+            y_offset = 10 if lower else -20
+            plt.text(self.x, self.y + y_offset, label, fontsize=12, color='black')
 
     def distance(self, other):
         return euclidean_dist(self.x, self.y, other.x, other.y) 
@@ -54,10 +57,11 @@ class IGCFile:
         
         for record in pilot_igc['fix_records'][1]:
             time = record['time']
+            altitude = record['gps_alt'] # use gps altitude
             ## TODO: check for zone 32T
             x, y, _, _ = utm.from_latlon(record['lat'], record['lon'])            
             
-            point = Point(x, y, time) # point in utm
+            point = Point(x, y, time, altitude) # point in utm
             points.append(point)
         return points
 
@@ -92,6 +96,7 @@ class Track:
         self.end_a = None
         self.end_b = None
         self.difference_seconds = 0
+        self.difference_altitude = 0
 
         # prepare:
         self.points = self.igc_file.read_points()
@@ -183,9 +188,14 @@ class Track:
         self.difference_seconds = (end_time - start_time).total_seconds()
         print('start:', self.start_a.time, 'end:', self.end_b.time, 'difference:', self.difference_seconds/3600, 'h')
 
+        # Altitude:
+        self.difference_altitude = self.start_a.altitude - self.end_b.altitude
+        print('Difference in altitude:', self.difference_altitude, 'meter')
+
     def compute_performance(self):
         print('~~~ PERFORMANCE ~~~')
         print(self.distance_total_fai / (self.difference_seconds/3600) / 1000., 'km/h')
+        print('height loss over distance:', self.difference_altitude / self.distance_total_fai * 100, '%')
         print('~~~ Optimistic (-2s)')
         print(self.distance_total_fai / ((self.difference_seconds-2)/3600) / 1000., 'km/h')
 
@@ -213,10 +223,12 @@ class Track:
         ax.plot(xs, ys, color='orange')
 
         # plot the points:
-        self.start_a.plot(f"start a: {self.start_a.time}")
-        self.start_b.plot(f"start b: {self.start_b.time}")
-        self.end_a.plot(f"end a: {self.end_a.time}")
-        self.end_b.plot(f"end b: {self.end_b.time}")
+        self.start_a.plot(f"start a: {self.start_a.time} at {self.start_a.altitude}m AMSL")        
+        self.start_b.plot()
+        #self.start_b.plot(f"start b: {self.start_b.time} at {self.start_b.altitude}m AMSL", True)
+        self.end_a.plot()
+        #self.end_a.plot(f"end a: {self.end_a.time} at {self.end_a.altitude}m AMSL")
+        self.end_b.plot(f"end b: {self.end_b.time} at {self.end_b.altitude}m AMSL", True)
 
         ax.set_aspect('equal')
 

@@ -210,8 +210,12 @@ def process_pilot(pilot_item):
 #ROOT_DIRECTORY = 'data/igc/swissleague/march/igc6494_2025-03-08'
 
 # TODO: create command line wrapper
-ROOT_DIRECTORY = 'data/igc/swissleague/swiss_regio_grindelwald'
+#ROOT_DIRECTORY = 'data/igc/swissleague/swiss_regio_grindelwald'
 #ROOT_DIRECTORY = 'data/igc/swissleague/swiss_regio_selection'
+
+# Swiss Cup Grindelwald
+#ROOT_DIRECTORY = 'data/igc/swissleague/swiss_cup_grindelwald/2025_04_26'
+ROOT_DIRECTORY = 'data/igc/swissleague/swiss_cup_grindelwald/2025_04_27'
 
 
 # scan directory
@@ -267,7 +271,7 @@ original_path, distances, config = optimizer.run_slow()
 #    if 'benjamin' in item[0]:
 #        process_pilot(item)
 
-with concurrent.futures.ProcessPoolExecutor(max_workers=20) as executor:
+with concurrent.futures.ProcessPoolExecutor() as executor:
     list(tqdm(executor.map(process_pilot, pilots.items()), total=len(pilots)))
 
 

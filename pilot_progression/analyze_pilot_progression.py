@@ -318,9 +318,9 @@ class CsvCompetition:
                 except ValueError:
                     print(f'Pilot {pilot.name} did not reach end. Skip!')
         
-        # sort by ranking (lower is better)
-        #self.pilots = sorted(self.pilots, key=lambda p: p.ranking)
-        self.pilots = sorted(self.pilots, key=lambda p: p.name.lower())
+        # sort by ranking (lower is better)        
+        #self.pilots = sorted(self.pilots, key=lambda p: p.name.lower())
+        self.ranked_pilots = sorted(self.pilots, key=lambda p: p.ranking)
 
         PRINT_RANKING = True
         if PRINT_RANKING:
@@ -334,10 +334,10 @@ class CsvCompetition:
         self.create_plots('all', self.pilots)
 
     def create_plots_top5(self):
-        self.create_plots('top5', self.pilots[:5])
+        self.create_plots('top5', self.ranked_pilots[:5])
 
     def create_plots_top20(self):
-        self.create_plots('top20', self.pilots[:20])
+        self.create_plots('top20', self.ranked_pilots[:20])
         
     def create_plots_booster(self):
         self.create_plots('booster', self.booster_pilots)
@@ -349,6 +349,9 @@ class CsvCompetition:
         self.create_plots('ccc', self.ccc_pilots)
 
     def create_plots(self, postfix, pilots):
+
+        # Sort by Name:
+        pilots = sorted(pilots, key=lambda p: p.name.lower())
 
         # Initlize KML View:
         self.view = KmlView(f'{self.output_prefix}_{postfix}')
@@ -406,25 +409,38 @@ if __name__ == '__main__':
     #competition = CsvCompetition('data/dump/task_2025-03-22', 'data/dump/regio_march_jura')
 
     # Swiss Regio Grindelwald
-    airstart = datetime.time(11, 00) # UTC
-    d_start = 65000
-    d_end = 0
-    goal_altitude = 500
-    competition = CsvCompetition('data/dump/task_tila', 'data/dump/swiss_regio_grindelwald')
-    
+    #airstart = datetime.time(11, 00) # UTC
+    #d_start = 65000
+    #d_end = 0
+    #goal_altitude = 500
+    #competition = CsvCompetition('data/dump/task_tila', 'data/dump/swiss_regio_grindelwald')    
 
     # Regio Beo
     #airstart = datetime.time(11, 35) # UTC
     #competition = CsvCompetition('data/dump/task_2025-03-01', 'data/dump/regio_march')
-    
+
+    # Swiss Cup Grindelwald
+    #airstart = datetime.time(11, 00) # UTC
+    #d_start = 68000
+    #d_end = 0
+    #goal_altitude = 950
+    #competition = CsvCompetition('data/dump/task_nite', 'data/dump/swiss_cup_grindelwald_T1')
+
+    airstart = datetime.time(12, 00) # UTC (Task 2)
+    d_start = 45000
+    d_end = 0
+    goal_altitude = 950
+    competition = CsvCompetition('data/dump/task_lenu', 'data/dump/swiss_cup_grindelwald_T2')
+
+
     # Run
     competition.read_pilots(airstart, goal_altitude, d_start, d_end, non_min_suppression=True)
     competition.create_plots_top5()
-    #competition.create_plots_top20()
-    #competition.create_plots_booster()
-    #competition.create_plots_sportsclass()
+    competition.create_plots_top20()
+    competition.create_plots_booster()
+    competition.create_plots_sportsclass()
     competition.create_plots_ccc()
-    competition.create_plots_all_pilots()
+    #competition.create_plots_all_pilots()
     
 
 

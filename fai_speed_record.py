@@ -64,6 +64,62 @@ class IGCFile:
             point = Point(x, y, time, altitude) # point in utm
             points.append(point)
         return points
+    
+    def check_landing(self):
+        with open(self.filename, 'r') as f:
+            pilot_igc = igc.Reader().read(f)
+
+        records = pilot_igc['fix_records'][1]
+
+        xs = []
+        alts = []
+        n = len(records)
+
+        for i in range(n-5*60, n-1): # ignore 2min after take-off
+            xs.append(i)
+            alts.append(records[i]['gps_alt'])
+            time = records[i]['time']
+            print(f"{i} \t {time}: lat/lon: {records[i]['lat']}/{records[i]['lon']}, alt {records[i]['gps_alt']}m AMSL")
+        
+        plt.figure()
+        plt.plot(xs, alts, label="Alt")
+
+        plt.legend()
+        plt.tight_layout()
+        plt.show()
+
+    
+    def check_winch_release(self):
+        with open(self.filename, 'r') as f:
+            pilot_igc = igc.Reader().read(f)
+
+        avg_climb = 2.0
+        records = pilot_igc['fix_records'][1]
+
+        xs = []
+        climbs = []
+        avg_climbs = []
+        
+        for i in range(10, 5*60): # ignore 2min after take-off
+            xs.append(i)
+            time = records[i]['time']
+            climb = records[i]['gps_alt']-records[i-1]['gps_alt'] # use gps altitude           
+            climbs.append(climb)
+
+            alpha = 0.9
+            avg_climb = alpha*avg_climb + (1-alpha)*climb
+            avg_climbs.append(avg_climb)
+            print(f"{i} \t {time}: avg_climb: {avg_climb:.1f}, climb: {climb:.1f}, lat/lon: {records[i]['lat']}/{records[i]['lon']}, alt {records[i]['gps_alt']}m AMSL")
+        
+        plt.figure()
+        plt.plot(xs, climbs, label="Climb")
+        plt.plot(xs, avg_climbs, label="Avg Climb")
+
+        plt.legend()
+        plt.tight_layout()
+        plt.show()
+        
+        
 
 class Course:
 
@@ -100,7 +156,8 @@ class Track:
 
         # prepare:
         self.points = self.igc_file.read_points()
-        self.course.assert_closed()
+        # TODO: fix for open distance:
+        #self.course.assert_closed()
         
         # process:        
         self.validate_turnpoints()
@@ -126,10 +183,16 @@ class Track:
     def compute_distance(self):
         # TODO: move to course ?
         a = self.course.start
-        b = self.course.tps[0]
-        distance = a.distance(b)   
-        self.distance_short = distance - 800
-        self.distance_total = self.distance_short*2
+        if len(self.course.tps) > 0:
+            b = self.course.tps[0]
+            distance = a.distance(b)   
+            self.distance_short = distance - 800
+            self.distance_total = self.distance_short*2
+        else:
+            b = self.course.end
+            distance = a.distance(b)
+            self.distance_short = distance - 800
+            self.distance_total = self.distance_short
         print('Distance between turnpoint center:', distance, 'Shortest Fly Distance:', self.distance_short, 'Total Distance:', self.distance_total, 'Total Distance FAI:', self.distance_total_fai)
     
     # Compute the points of interest and the pessimistic time between.
@@ -150,10 +213,11 @@ class Track:
         turnpoint = self.course.start
         inside = False
         for i,point in enumerate(self.points):
+            
             if not inside and turnpoint.hit(point):
                 inside = True
                 
-                if turnpoint == self.course.tps[tps_counter]:
+                if len(self.course.tps) > 0 and turnpoint == self.course.tps[tps_counter]:
                     # hit tpXX:
                     print('hit TP', tps_counter+1)
                     inside = False                    
@@ -180,7 +244,10 @@ class Track:
                     self.start_b = self.points[i]
                     self.start_track = self.points[i-10:i+10]
                     inside = False
-                    turnpoint = self.course.tps[0] # goto first turnpoint
+                    if len(self.course.tps) > 0:
+                        turnpoint = self.course.tps[0] # goto first turnpoint
+                    else:
+                        turnpoint = self.course.end
             
         print('Pessimistic timing:')
         start_time = datetime.strptime(str(self.start_a.time), "%H:%M:%S")
@@ -213,6 +280,9 @@ class Track:
         ax.add_patch(circle)        
         ax.plot(center[0], center[1], 'ro')  # red dot at center
 
+        circle = Circle((self.course.end.center.x, self.course.end.center.y), self.course.end.radius, fill=True, color='darkred', alpha=0.4, linewidth=2)
+        ax.add_patch(circle)
+
         # Track lines:
         xs = [p.x for p in self.start_track]
         ys = [p.y for p in self.start_track]
@@ -244,19 +314,48 @@ class Track:
 
 if __name__ == '__main__':
 
+	# 4.4.2025 - 100km speed record
+
     # IGC File:
-    igc_file = IGCFile('/home/benjamin/Nextcloud/Paraglide/Records/Flightplans/Speed/100km-out-return/attempt_2025-04-04/2025-04-04-XCT-BFA-07_xcontest.igc')
+    #igc_file = IGCFile('/home/benjamin/Nextcloud/Paraglide/Records/Flightplans/Speed/100km-out-return/attempt_2025-04-04/2025-04-04-XCT-BFA-07_xcontest.igc')
 
     # Create Track:
-    start = Turnpoint(46.325863, 8.005584, 400)
-    tp1 = Turnpoint(46.278496, 7.342815, 400)
-    end = Turnpoint(46.325863, 8.005584, 400)
-    course = Course(start, [tp1], end)    
+    #start = Turnpoint(46.325863, 8.005584, 400)
+    #tp1 = Turnpoint(46.278496, 7.342815, 400)
+    #end = Turnpoint(46.325863, 8.005584, 400)
+    #course = Course(start, [tp1], end)    
 
     # by FAI Distance Calculator
-    distance_fai = 2 * (51.33066768208024-0.800)*1000
+    #distance_fai = 2 * (51.33066768208024-0.800)*1000
+    
+    # Nico 326km:
+    # IGC File:
+    #igc_file = IGCFile('/home/benjamin/Nextcloud/Paraglide/Records/2026_09_25_Record_Nico/2026-09-25-XTR-B7A3378F5A6D-01.IGC')
+    #igc_file.check_winch_release()
+    #igc_file.check_landing()
+
+    # Create Track:
+    #start = Turnpoint(-6.436390, -37.084020, 400)
+    #end = Turnpoint(-4.997580, -39.663550, 400)
+    #course = Course(start, [], end)    
+
+
+    # Benjamin Fankhauser 4.10.2026, 456km
+    igc_file = IGCFile("/home/benjamin/Nextcloud/Paraglide/Records/2026_10_04_456km/2026-10-04-XTR-BCDE0AA45EC5-01.IGC")
+
+    start = Turnpoint(-6.436570, -37.083230, 400) 
+    tp1= Turnpoint(-4.895970, -40.327430, 400) # 397.71km - 800
+    end = Turnpoint(-4.757180, -40.843230, 400) # 59.23km - 800
+    # 
+
+    course = Course(start, [tp1], end)
+
+    # by FAI Distance Calculator
+    distance_fai = 456.7*1000
 
     track = Track(igc_file, course, distance_fai)
     track.plot()
+    
+    
 
 

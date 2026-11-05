@@ -67,7 +67,7 @@ def height_compensation(delta_altitude, delta_distance, delta_time, glide2goal):
     return extra_time, compensated_speed
 
 def height_compensation_speed(row, goal_altitude):
-    glide2goal = row['distance'] / (row['gps_alt']-goal_altitude+0.00001)
+    glide2goal = row['distance'] / ((row['gps_alt']-goal_altitude)+1e-5)
     _, speed = height_compensation(row['delta_gps_alt'], row['delta_distance'], row['delta_seconds'], glide2goal)
     return speed
 
@@ -430,11 +430,18 @@ if __name__ == '__main__':
     #goal_altitude = 950
     #competition = CsvCompetition('data/dump/task_nite', 'data/dump/swiss_cup_grindelwald_T1')
 
-    #airstart = datetime.time(12, 00) # UTC (Task 2)
-    #d_start = 45000
+    ##airstart = datetime.time(12, 00) # UTC (Task 2)
+    ##d_start = 45000
     #d_end = 0
     #goal_altitude = 950
     #competition = CsvCompetition('data/dump/task_lenu', 'data/dump/swiss_cup_grindelwald_T2')
+
+    # Lenzerheide (Disentis)
+    airstart = datetime.time(10, 45) # UTC
+    d_start = 117000
+    #d_end = 0
+    #goal_altitude = 1250
+    #competition = CsvCompetition('data/dump/task_nori', 'data/dump/swiss_cup_lenzerheide_T1')
 
     # OGO-West
     airstart = datetime.time(12, 00) # UTC (Task 1)
@@ -451,7 +458,6 @@ if __name__ == '__main__':
     d_end = 10
     goal_altitude = 645
     competition = CsvCompetition('data/dump/Magic_AirV3-v4-v1', 'data/dump/regio_beo_march')
-
 
     # Run
     competition.read_pilots(airstart, goal_altitude, d_start, d_end, non_min_suppression=True)

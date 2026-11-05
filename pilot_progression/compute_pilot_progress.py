@@ -216,6 +216,12 @@ def process_pilot(pilot_item):
 # Swiss Cup Grindelwald
 #ROOT_DIRECTORY = 'data/igc/swissleague/swiss_cup_grindelwald/2025_04_26'
 #ROOT_DIRECTORY = 'data/igc/swissleague/swiss_cup_grindelwald/2025_04_27'
+<<<<<<< HEAD
+=======
+
+# Swiss Cup Lenzerheide
+ROOT_DIRECTORY = 'data/igc/swissleague/swiss_cup_lenzerheide/T01'
+>>>>>>> refs/remotes/origin/main
 
 # OGO-West
 #ROOT_DIRECTORY = 'data/igc/swissleague/ogo_charmey/igc6735_2025-05-29'
@@ -262,8 +268,11 @@ original_task = load_from_xctsk(task_file)
 # Create initial shortest path
 center_path = Path.from_center_points(original_task)
 optimizer = GridSearchShortestPath(original_task)
+original_path, distances, config = optimizer.run_ultra()
 #original_path, distances, config = optimizer.run_fast()
-original_path, distances, config = optimizer.run_slow()
+#original_path, distances, config = optimizer.run_slow()
+
+# further sp
 
 #pilots = {'benjamin': 'igc/task_2025-03-01-Regio/2025-03-01-XCT-BFA-11.igc',
 #           'roger': 'igc/task_2025-03-01-Regio/2025-03-01-XCT-RAE-01.igc',

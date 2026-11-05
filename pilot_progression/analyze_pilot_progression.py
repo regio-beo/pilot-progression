@@ -67,7 +67,7 @@ def height_compensation(delta_altitude, delta_distance, delta_time, glide2goal):
     return extra_time, compensated_speed
 
 def height_compensation_speed(row, goal_altitude):
-    glide2goal = row['distance'] / (row['gps_alt']-goal_altitude)
+    glide2goal = row['distance'] / (row['gps_alt']-goal_altitude+0.00001)
     _, speed = height_compensation(row['delta_gps_alt'], row['delta_distance'], row['delta_seconds'], glide2goal)
     return speed
 
@@ -190,7 +190,8 @@ class CsvPilot:
         
         # ranking (lowest time then lowest distance)
         self.ranking = last_row['seconds'] # use the time elapsed for last row as ranking
-        if distance_to_end > 0:
+        #self.ranking = delta_time
+        if distance_to_end > 0.1:
             self.ranking = 86400 + distance_to_end
         
 
@@ -324,7 +325,7 @@ class CsvCompetition:
 
         PRINT_RANKING = True
         if PRINT_RANKING:
-            print('Ranking:', '\n'.join([f'{p.name} \t{p.ranking}' for p in self.pilots]))
+            print('Ranking:\n', '\n'.join([f'{p.name} \t{p.ranking}' for p in self.ranked_pilots]))
 
         self.booster_pilots = list(filter(lambda p: self.booster.contains(p.name), self.pilots))
         self.sport_pilots = list(filter(lambda p: self.sportsclass.contains(p.name), self.pilots))
@@ -338,6 +339,9 @@ class CsvCompetition:
 
     def create_plots_top20(self):
         self.create_plots('top20', self.ranked_pilots[:20])
+    
+    def create_plots_top30(self):
+        self.create_plots('top30', self.ranked_pilots[:30])
         
     def create_plots_booster(self):
         self.create_plots('booster', self.booster_pilots)
@@ -426,19 +430,36 @@ if __name__ == '__main__':
     #goal_altitude = 950
     #competition = CsvCompetition('data/dump/task_nite', 'data/dump/swiss_cup_grindelwald_T1')
 
-    airstart = datetime.time(12, 00) # UTC (Task 2)
-    d_start = 45000
-    d_end = 0
-    goal_altitude = 950
-    competition = CsvCompetition('data/dump/task_lenu', 'data/dump/swiss_cup_grindelwald_T2')
+    #airstart = datetime.time(12, 00) # UTC (Task 2)
+    #d_start = 45000
+    #d_end = 0
+    #goal_altitude = 950
+    #competition = CsvCompetition('data/dump/task_lenu', 'data/dump/swiss_cup_grindelwald_T2')
+
+    # OGO-West
+    airstart = datetime.time(12, 00) # UTC (Task 1)
+    d_start = 100000
+    d_end = 10
+    goal_altitude = 950 # To get over the ridge
+    #competition = CsvCompetition('data/dump/task_geqo', 'data/dump/ogo_west_T1')
+    competition = CsvCompetition('data/dump/task_fuvu', 'data/dump/ogo_west_T2')
+    #competition = CsvCompetition('data/dump/task_meta', 'data/dump/ogo_west_T3')
+
+    # Regio Beo: March
+    airstart = datetime.time(12, 00) # UTC +1
+    d_start = 100000
+    d_end = 10
+    goal_altitude = 645
+    competition = CsvCompetition('data/dump/Magic_AirV3-v4-v1', 'data/dump/regio_beo_march')
 
 
     # Run
     competition.read_pilots(airstart, goal_altitude, d_start, d_end, non_min_suppression=True)
     competition.create_plots_top5()
     competition.create_plots_top20()
-    competition.create_plots_booster()
-    competition.create_plots_sportsclass()
+    #competition.create_plots_top30()
+    #competition.create_plots_booster()
+    #competition.create_plots_sportsclass()
     competition.create_plots_ccc()
     #competition.create_plots_all_pilots()
     

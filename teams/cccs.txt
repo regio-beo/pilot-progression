@@ -11,6 +11,8 @@ descombes-henri
 frochaux-gael
 morisetti-jean
 seitz-gernot
+steiner-simon
+
 
 # SLO (addition):
 licini-davide
@@ -28,3 +30,19 @@ narsai-anesh
 gubeli-michael
 morrissey-peter
 mumenthaler-colin
+
+#OGO
+hallweger-kilian
+nedele-matthis
+court-noe
+bretz-heinrich
+fischer-daniel
+schope-stephan
+kagi-jerome
+baumgarten-johannes
+kierdorf-jens
+nagele-peter
+deutschmann-elisa
+
+
+

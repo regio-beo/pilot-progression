@@ -7,8 +7,8 @@ If the pilot name is missing it puts a the parsed name into the file.
 Does not check or recreate Signatures!
 '''
 
-ROOT_DIR = 'data/igc/swissleague/march'
-TASK_NAME = 'igc6494_2025-03-08'
+ROOT_DIR = 'data/igc/swissleague/ogo_charmey'
+TASK_NAME = 'igc6735_2025-05-30'
 
 task_dir = os.path.join(ROOT_DIR, TASK_NAME)
 output_dir = os.path.join('data/dump/', TASK_NAME)

@@ -41,3 +41,15 @@ habegger-andrea
 fontaine-anatole
 ronchi-serena
 barnetta-renato
+hutter-ruben
+strahm-hans
+steiner-simon
+kyburz-adrian
+johannsen-jeele
+corbat-yannick
+naegeli-bernhard
+
+# Germans
+bahn-stefan
+frauenlob-marwin
+

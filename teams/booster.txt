@@ -2,6 +2,9 @@
 thiebaud-fabrice
 cox-steve
 aeschbacher-roger
+morgenthaler-stephan
+montavon-morane
+
 
 # German
 steiner-simon

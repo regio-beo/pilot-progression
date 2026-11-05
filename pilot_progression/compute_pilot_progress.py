@@ -215,8 +215,15 @@ def process_pilot(pilot_item):
 
 # Swiss Cup Grindelwald
 #ROOT_DIRECTORY = 'data/igc/swissleague/swiss_cup_grindelwald/2025_04_26'
-ROOT_DIRECTORY = 'data/igc/swissleague/swiss_cup_grindelwald/2025_04_27'
+#ROOT_DIRECTORY = 'data/igc/swissleague/swiss_cup_grindelwald/2025_04_27'
 
+# OGO-West
+#ROOT_DIRECTORY = 'data/igc/swissleague/ogo_charmey/igc6735_2025-05-29'
+#ROOT_DIRECTORY = 'data/igc/swissleague/ogo_charmey/igc6735_2025-05-30'
+#ROOT_DIRECTORY = 'data/igc/swissleague/ogo_charmey/igc6735_2025-05-31'
+
+# Regio Beo March
+ROOT_DIRECTORY = 'data/igc/task_2026-03-08'
 
 # scan directory
 task_file = None

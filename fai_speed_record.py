@@ -212,7 +212,11 @@ class Track:
         tps_counter = 0
         turnpoint = self.course.start
         inside = False
+        print("Warning: first 200 points skipped due to towed launch")
         for i,point in enumerate(self.points):
+            # quickfix (only start after 6:55)            
+            if i < 200:
+                continue
             
             if not inside and turnpoint.hit(point):
                 inside = True
@@ -341,17 +345,19 @@ if __name__ == '__main__':
 
 
     # Benjamin Fankhauser 4.10.2026, 456km
-    igc_file = IGCFile("/home/benjamin/Nextcloud/Paraglide/Records/2026_10_04_456km/2026-10-04-XTR-BCDE0AA45EC5-01.IGC")
+    igc_file = IGCFile("/home/benjamin/Nextcloud/Paraglide/Records/2026_10_04_455km/2026-10-04-XTR-BCDE0AA45EC5-01.IGC")
+    #igc_file.check_winch_release()
+    igc_file.check_landing()
+    
 
     start = Turnpoint(-6.436570, -37.083230, 400) 
-    tp1= Turnpoint(-4.895970, -40.327430, 400) # 397.71km - 800
-    end = Turnpoint(-4.757180, -40.843230, 400) # 59.23km - 800
-    # 
-
+    tp1= Turnpoint(-4.895970, -40.327430, 400) # 397.72km - 800 (by fai calculator)
+    end = Turnpoint(-4.757180, -40.843230, 400) # 59.24km - 800     
     course = Course(start, [tp1], end)
 
+
     # by FAI Distance Calculator
-    distance_fai = 456.7*1000
+    distance_fai = ((397.71-0.8)+59.23-0.8)*1000
 
     track = Track(igc_file, course, distance_fai)
     track.plot()

@@ -179,6 +179,7 @@ if __name__ == "__main__":
         ("2026-10-08-XCT-PAE-01.igc", "Philipp", FLIGHT_ORANGE),
         ("2026-10-09-XCT-CRI-01.igc", "Christoph, Benjamin,\nOlivier, Dorian", FLIGHT_ORANGE),
     ]
+    flights=[]
     try:
         figure = draw_map(flights)
     except (OSError, ValueError) as error:
